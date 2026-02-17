@@ -19,7 +19,7 @@ class AvatarController extends Controller
     public function update(Request $request)
 {
     $request->validate([
-        'avatar' => 'required|image|mimes:jpeg,png,gif,webp|max:2048'
+        'avatar' => 'required|image|mimes:jpeg,png,gif,webp'
     ]);
 
     try {

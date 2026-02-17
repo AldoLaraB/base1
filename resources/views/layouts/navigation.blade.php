@@ -23,46 +23,46 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="flex items-center text-sm space-x-2">
-    @php
-        $avatar = Auth::user()->primaryMedia('avatar');
-    @endphp
-    
-    @if($avatar)
-        <img src="{{ $avatar->url }}" alt="Avatar" 
-             class="w-8 h-8 rounded-full object-cover">
-    @else
-        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm">
-            {{ substr(Auth::user()->name, 0, 1) }}
-        </div>
-    @endif
-    
-    <span>{{ Auth::user()->name }}</span>
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-    </svg>
-</button>
+                            @php
+                                $avatar = Auth::user()->primaryMedia('avatar');
+                            @endphp
+                            
+                            @if($avatar)
+                                <img src="{{ $avatar->url }}" alt="Avatar" 
+                                     class="w-8 h-8 rounded-full object-cover">
+                            @else
+                                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-sm">
+                                    {{ substr(Auth::user()->name, 0, 1) }}
+                                </div>
+                            @endif
+                            
+                            <span>{{ Auth::user()->name }}</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
                     </x-slot>
 
                     <x-slot name="content">
-    <x-dropdown-link :href="route('profile.edit')">
-        {{ __('Profile') }}
-    </x-dropdown-link>
+                        <x-dropdown-link :href="route('profile.edit')">
+                            {{ __('Profile') }}
+                        </x-dropdown-link>
 
-    <!-- NUOVA VOCE PER AVATAR -->
-    <x-dropdown-link :href="route('profile.avatar')">
-        Set Avatar
-    </x-dropdown-link>
+                        <!-- VOCE PER AVATAR -->
+                        <x-dropdown-link :href="route('profile.avatar')">
+                            Set Avatar
+                        </x-dropdown-link>
 
-    <!-- Authentication -->
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <x-dropdown-link :href="route('logout')"
-                onclick="event.preventDefault();
-                            this.closest('form').submit();">
-            {{ __('Log Out') }}
-        </x-dropdown-link>
-    </form>
-</x-slot>
+                        <!-- Authentication -->
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <x-dropdown-link :href="route('logout')"
+                                    onclick="event.preventDefault();
+                                                this.closest('form').submit();">
+                                {{ __('Log Out') }}
+                            </x-dropdown-link>
+                        </form>
+                    </x-slot>
                 </x-dropdown>
             </div>
 
@@ -89,8 +89,26 @@
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <!-- AVATAR IN VERSIONE RESPONSIVE (AGGIUNTO) -->
+                <div class="flex items-center space-x-3 mb-3">
+                    @php
+                        $avatar = Auth::user()->primaryMedia('avatar');
+                    @endphp
+                    
+                    @if($avatar)
+                        <img src="{{ $avatar->url }}" alt="Avatar" 
+                             class="w-10 h-10 rounded-full object-cover border-2 border-gray-200">
+                    @else
+                        <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-lg">
+                            {{ substr(Auth::user()->name, 0, 1) }}
+                        </div>
+                    @endif
+                    
+                    <div>
+                        <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                        <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                    </div>
+                </div>
             </div>
 
             <div class="mt-3 space-y-1">
@@ -98,10 +116,14 @@
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
 
+                <!-- VOCE AVATAR IN RESPONSIVE (AGGIUNTO) -->
+                <x-responsive-nav-link :href="route('profile.avatar')">
+                    Set Avatar
+                </x-responsive-nav-link>
+
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">

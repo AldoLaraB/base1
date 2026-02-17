@@ -49,9 +49,7 @@
                             @method('PUT')
                             
                             <div class="mb-4">
-                                <label for="avatar" class="block text-sm font-medium text-gray-700">
-                                    Scegli un'immagine (max 2MB)
-                                </label>
+                                
                                 <input type="file" name="avatar" id="avatar" accept="image/jpeg,image/png,image/gif,image/webp"
                                        class="mt-1 block w-full text-sm text-gray-500
                                               file:mr-4 file:py-2 file:px-4
