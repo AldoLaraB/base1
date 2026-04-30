@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,18 +12,17 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            
+
             // CAMPI BASE LARAVEL
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
-            
-            // 🔥 NUOVI CAMPI PER GESTIONE ADMIN E STATO
-            $table->string('role')->default('user')->index();      // 'user', 'admin', ecc.
-            $table->boolean('is_active')->default(true)->index();  // utente attivo/bloccato
-            
+
+            // STATO UTENTE (attivo/disattivo)
+            $table->boolean('is_active')->default(true)->index();
+
             $table->timestamps();
         });
 

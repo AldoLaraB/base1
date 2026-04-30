@@ -4,13 +4,17 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Traits\HasMedia;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasMedia;
+    use HasMedia, HasRoles;
 
     protected $fillable = [
-        'name', 'email', 'password', 'role', 'is_active'
+        'name',
+        'email',
+        'password',
+        'is_active'
     ];
 
     protected $casts = [
@@ -28,19 +32,19 @@ class User extends Authenticatable
             if ($avatar) {
                 $user->deleteMedia($avatar);
             }
-            
+
             // Cancella tutte le immagini della gallery personale
             $galleryImages = $user->getMediaByCollection('gallery');
             foreach ($galleryImages as $image) {
                 $user->deleteMedia($image);
             }
-            
+
             // NOTA: prodotti, post e altri contenuti NON vengono toccati
         });
     }
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->hasRole('admin');
     }
 }
