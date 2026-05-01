@@ -242,7 +242,8 @@ Crea utente amministratore:
     "laravel/framework": "^12.0",
     "laravel/tinker": "^2.10.1",
     "intervention/image-laravel": "^1.5",
-    "spatie/laravel-permission": "^7.0"
+    "spatie/laravel-permission": "^7.0",
+    "laravel/sanctum": "^4.0"
 }
 ```
 
@@ -501,4 +502,40 @@ php artisan db:seed --class=AdminUserSeeder
 
 ---
 
-_Documento generato automaticamente il 30 aprile 2026_
+## 22. API REST (Laravel Sanctum)
+
+### Endpoint API
+
+| Metodo | URI           | Controller              | Autenticazione | Descrizione                |
+| ------ | ------------- | ----------------------- | -------------- | -------------------------- |
+| POST   | /api/login    | AuthController@login    | No             | Login e ottenimento token  |
+| POST   | /api/register | AuthController@register | No             | Registrazione nuovo utente |
+| GET    | /api/me       | AuthController@me       | Sanctum        | Info utente corrente       |
+| POST   | /api/logout   | AuthController@logout   | Sanctum        | Revoca token               |
+| GET    | /api/user     | -                       | Sanctum        | User (default Laravel)     |
+
+### Tabella Token
+
+- `personal_access_tokens` - Token API utente
+
+### Controller
+
+- `app/Http/Controllers/Api/AuthController.php`
+
+### Configurazione
+
+- `config/sanctum.php`
+
+### Trait User
+
+- `Laravel\Sanctum\HasApiTokens` - Gestione token API
+
+### Metodi Helper
+
+- `$user->createToken('name')` - Crea token
+- `$user->tokens` - Relazione token
+- `$user->currentAccessToken()` - Token corrente
+
+---
+
+_Documento generato automaticamente il 1 maggio 2026_

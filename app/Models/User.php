@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Traits\HasMedia;
 use Spatie\Permission\Traits\HasRoles;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasMedia, HasRoles;
+    use HasApiTokens, HasMedia, HasRoles;
 
     protected $fillable = [
         'name',
