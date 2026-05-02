@@ -8,7 +8,7 @@
 | **Tipo**         | Web Application (Laravel 12)                                                                                |
 | **Descrizione**  | Skeleton application per Laravel framework con sistema di gestione media (immagini) e autenticazione utente |
 | **Licenza**      | MIT                                                                                                         |
-| **Versione PHP** | ^8.2                                                                                                        |
+| **Versione PHP** | ^8.2 (minimo 8.2, compatibile 8.3, 8.4+)                                                                    |
 
 ---
 
@@ -17,7 +17,7 @@
 ### Backend
 
 - **Framework**: Laravel 12.0
-- **PHP**: ^8.2
+- **PHP**: ^8.2 (PHP 8.2+)
 - **Database**: SQLite (default), supporta MySQL/PostgreSQL
 - **Image Processing**: intervention/image-laravel ^1.5
 
@@ -84,9 +84,9 @@
 **Path**: `app/Models/User.php`
 
 - Estende `Authenticatable`
-- Usa trait `HasMedia`
-- Campi fillable: `name`, `email`, `password`, `role`, `is_active`
-- Metodo `isAdmin()`: verifica se ruolo = 'admin'
+- Usa trait: `HasApiTokens`, `HasMedia`, `HasRoles`
+- Campi fillable: `name`, `email`, `password`, `is_active`
+- Metodo `isAdmin()`: verifica se ha ruolo admin
 - Evento `deleting`: cancella avatar e gallery alla rimozione utente
 
 ### Media Model
@@ -174,7 +174,79 @@ Rotte auth.php (Breeze):
 
 ---
 
-## 9. View
+## 9. API REST
+
+### API Authentication
+
+**Framework**: Laravel Sanctum (token-based authentication)
+
+### API Routes
+
+**Path**: `routes/api.php`
+
+| Metodo | URI           | Controller              | Middleware   | Descrizione               |
+| ------ | ------------- | ----------------------- | ------------ | ------------------------- |
+| POST   | /api/login    | AuthController@login    | -            | Login e generazione token |
+| POST   | /api/register | AuthController@register | -            | Registrazione utente      |
+| GET    | /api/user     | closure                 | auth:sanctum | Info utente corrente      |
+| GET    | /api/me       | AuthController@me       | auth:sanctum | Info dettagliate utente   |
+| POST   | /api/logout   | AuthController@logout   | auth:sanctum | Logout e revoca token     |
+
+### API Resources
+
+#### UserResource
+
+**Path**: `app/Http/Resources/UserResource.php`
+
+Trasforma il modello User in JSON strutturato per le API:
+
+```json
+{
+    "id": 1,
+    "name": "Nome Utente",
+    "email": "user@example.com",
+    "email_verified_at": "2026-05-01T10:00:00.000000Z",
+    "is_active": true,
+    "roles": ["admin"],
+    "permissions": ["create-users", "edit-posts"],
+    "avatar": {
+        "id": 1,
+        "name": "avatar.jpg",
+        "url": "http://localhost/storage/1/avatar.jpg",
+        "thumb_url": "http://localhost/storage/1/conversions/avatar-thumb.jpg"
+    },
+    "created_at": "2026-05-01T10:00:00.000000Z",
+    "updated_at": "2026-05-01T10:00:00.000000Z"
+}
+```
+
+**Campi condizionali**:
+
+- `roles` e `permissions`: caricati solo se richiesta relazione
+- `avatar`: incluso solo se caricati i media
+
+### API Controller
+
+#### AuthController (API)
+
+**Path**: `app/Http/Controllers/Api/AuthController.php`
+
+Metodi:
+
+- `login(Request)`: autentica utente, verifica `is_active`, genera token Sanctum
+- `register(Request)`: registrazione nuovo utente (da implementare)
+- `me(Request)`: informazioni dettagliate utente autenticato
+- `logout(Request)`: revoca token corrente
+
+**Validazione login**:
+
+- Controlla credenziali (email/password)
+- Verifica campo `is_active = true`
+- Restituisce errore se account disattivato
+
+---
+
+## 10. View
 
 ### Blade Templates
 
@@ -194,7 +266,7 @@ Layout: usa componenti Blade Laravel (x-app-layout, x-slot)
 
 ---
 
-## 10. Seeder
+## 11. Seeder
 
 ### AdminUserSeeder
 
@@ -205,12 +277,14 @@ Crea utente amministratore:
 - **Email**: admin@example.com
 - **Password**: password123
 - **Nome**: Amministratore
-- **Ruolo**: admin
+- **Ruolo**: admin (assegnato via Spatie)
 - **is_active**: true
+
+> **Nota**: Il ruolo viene assegnato da `RolePermissionSeeder`, non direttamente da questo seeder.
 
 ---
 
-## 11. Configurazione
+## 12. Configurazione
 
 ### config/app.php
 
@@ -232,7 +306,7 @@ Crea utente amministratore:
 
 ---
 
-## 12. Dipendenze Composer
+## 13. Dipendenze Composer
 
 ### require
 
@@ -246,6 +320,8 @@ Crea utente amministratore:
     "laravel/sanctum": "^4.0"
 }
 ```
+
+> **Nota**: `^8.2` significa PHP 8.2 o superiore (8.3, 8.4, ecc.)
 
 ### require-dev
 
@@ -265,7 +341,7 @@ Crea utente amministratore:
 
 ---
 
-## 13. Dipendenze npm
+## 14. Dipendenze npm
 
 ### devDependencies
 
@@ -286,7 +362,7 @@ Crea utente amministratore:
 
 ---
 
-## 14. Script npm
+## 15. Script npm
 
 | Script | Comando    | Descrizione        |
 | ------ | ---------- | ------------------ |
@@ -295,7 +371,7 @@ Crea utente amministratore:
 
 ---
 
-## 15. Script Composer
+## 16. Script Composer
 
 | Script                    | Comando        | Descrizione             |
 | ------------------------- | -------------- | ----------------------- |
@@ -306,7 +382,7 @@ Crea utente amministratore:
 
 ---
 
-## 16. Test
+## 17. Test
 
 ### Feature Tests
 
@@ -322,18 +398,22 @@ Framework: Pest PHP
 
 ---
 
-## 17. Struttura File Principali
+## 18. Struttura File Principali
 
 ```
 base1/
 ├── app/
 │   ├── Http/
 │   │   ├── Controllers/
+│   │   │   ├── Api/
+│   │   │   │   └── AuthController.php
 │   │   │   ├── Profile/
 │   │   │   │   └── AvatarController.php
 │   │   │   └── ProfileController.php
-│   │   └── Requests/
-│   │       └── ProfileUpdateRequest.php
+│   │   ├── Requests/
+│   │   │   └── ProfileUpdateRequest.php
+│   │   └── Resources/
+│   │       └── UserResource.php
 │   ├── Models/
 │   │   ├── Media.php
 │   │   └── User.php
@@ -355,9 +435,11 @@ base1/
 │   │   ├── 0001_01_01_000001_create_cache_table.php
 │   │   ├── 0001_01_01_000002_create_jobs_table.php
 │   │   └── 2026_02_16_105304_create_media_table.php│   │   ├── 2026_04_30_000000_create_permission_tables.php
-│   │   └── 2026_04_30_000001_drop_users_role_column.php│   └── seeders/
+│   │   └── 2026_05_01_071708_create_personal_access_tokens_table
+│   └── seeders/
 │       ├── AdminUserSeeder.php
-│       └── DatabaseSeeder.php
+│       ├── DatabaseSeeder.php
+│       └── RolePermissionSeeder.php
 ├── public/
 │   ├── index.php
 │   └── (altri file pubblici)
@@ -376,6 +458,7 @@ base1/
 │           └── partials/
 ├── routes/
 │   ├── web.php
+│   ├── api.php
 │   ├── auth.php
 │   └── console.php
 ├── tests/
@@ -393,7 +476,7 @@ base1/
 
 ---
 
-## 18. Note di Implementazione
+## 19. Note di Implementazione
 
 ### Sistema Media
 
@@ -414,15 +497,24 @@ base1/
 - Include: login, registrazione, logout, reset password, verifica email
 - Middleware `auth` e `verified` per protezione route
 
+### API REST
+
+- Autenticazione basata su **Laravel Sanctum** (token bearer)
+- **UserResource** per strutturare risposte JSON consistenti
+- Campo `is_active` verificato nel login API
+- Route protette con middleware `auth:sanctum`
+- Supporto lazy loading per relazioni (roles, permissions, media)
+
 ### Ruoli Utente
 
-- Campo `role`: 'user' (default), 'admin'
+- Gestiti da **Spatie Permission** (tabelle separate)
+- Ruoli disponibili: 'admin', 'editor', 'user'
 - Campo `is_active`: boolean per attivare/disattivare utenti
 - Metodo `isAdmin()` per verifica rapida
 
 ---
 
-## 19. Comandi Utili
+## 20. Comandi Utili
 
 ```bash
 # Setup progetto
