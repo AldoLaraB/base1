@@ -37,7 +37,34 @@ class Media extends Model
 
     public function getUrlAttribute(): string
     {
-        return Storage::disk($this->disk)->url($this->path);
+        return $this->getUrl();
+    }
+
+    public function getUrl(?string $conversion = null): string
+    {
+        $path = $this->path;
+
+        if ($conversion === 'thumb') {
+            $thumbPath = pathinfo($path, PATHINFO_DIRNAME) . '/thumb_' . pathinfo($path, PATHINFO_BASENAME);
+            if (Storage::disk($this->disk)->exists($thumbPath)) {
+                $path = $thumbPath;
+            }
+        }
+
+        return $this->storageUrl($path);
+    }
+
+    protected function storageUrl(string $path): string
+    {
+        if (function_exists('request') && request()->instance()) {
+            $basePath = rtrim(request()->getBasePath(), '/');
+            return ($basePath ? $basePath : '') . '/storage/' . ltrim($path, '/');
+        }
+
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $storage */
+        $storage = Storage::disk($this->disk);
+
+        return $storage->url($path);
     }
 
     public function getFullPathAttribute(): string
