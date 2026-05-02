@@ -26,7 +26,7 @@ class UserResource extends JsonResource
                 $avatar = $this->primaryMedia('avatar');
                 return $avatar ? [
                     'id' => $avatar->id,
-                    'name' => $avatar->name,
+                    'name' => $avatar->filename,
                     'url' => $avatar->getUrl(),
                     'thumb_url' => $avatar->getUrl('thumb'),
                 ] : null;
